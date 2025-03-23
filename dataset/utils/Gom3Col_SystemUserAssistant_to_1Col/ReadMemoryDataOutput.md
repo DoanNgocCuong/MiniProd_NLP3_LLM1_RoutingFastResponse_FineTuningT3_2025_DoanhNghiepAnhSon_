@@ -1,0 +1,9 @@
+1d [ubuntu@mgc-dev-3090-01:~/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_Fine
+om3Col_SystemUserAssistant_to_1Col]└4 [base] main(+0/-11764)* ± du -h /home/ubuntsponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/*
+228K    /home/ubuntu/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/Only_Data_system_user_assistant_v1.1_conversations_format.xlsx
+8.2M    /home/ubuntu/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/Only_Data_system_user_assistant_v1.1_formatted_data.csv
+8.1M    /home/ubuntu/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/Only_Data_system_user_assistant_v1.1_hf_dataset
+532K    /home/ubuntu/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/Only_Data_system_user_assistant_v1.1_output.xlsx
+8.8M    /home/ubuntu/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_FineTuningT3_2025_DoanhNghiepAnhSon_/dataset/utils/Gom3Col_SystemUserAssistant_to_1Col/processed/Only_Data_system_user_assistant_v1.1_training_data.jsonl
+1d [ubuntu@mgc-dev-3090-01:~/cuong_dn/MiniProd_NLP3_LLM1_RoutingFastResponse_Fine
+om3Col_SystemUserAssistant_to_1Col]└4 [base] main(+0/-11764)* ± 
