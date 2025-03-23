@@ -1,27 +1,50 @@
 import os
 import torch
 import argparse
+import unsloth
+from unsloth import FastLanguageModel, is_bfloat16_supported
+from unsloth.chat_templates import get_chat_template, standardize_sharegpt, train_on_responses_only
 from datasets import load_dataset
 from transformers import TrainingArguments, DataCollatorForSeq2Seq, TextStreamer
 from trl import SFTTrainer
-from unsloth import FastLanguageModel, is_bfloat16_supported
-from unsloth.chat_templates import get_chat_template, standardize_sharegpt, train_on_responses_only
+from peft import get_peft_model, LoraConfig
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Fine-tune a language model with Unsloth")
-    parser.add_argument("--model", type=str, default="unsloth/Llama-3.2-3B-Instruct", help="Model name or path")
-    parser.add_argument("--dataset", type=str, default="mlabonne/FineTome-100k", help="Dataset name or path")
+    
+    # Model and dataset arguments
+    parser.add_argument("--model", type=str, default="unsloth/Llama-3.2-3B-Instruct", 
+                       help="Model name or path")
+    parser.add_argument("--dataset", type=str, default="mlabonne/FineTome-100k", 
+                       help="Dataset name or path")
+    
+    # Training parameters with alternative names
+    parser.add_argument("--lr", "--learning_rate", type=float, default=2e-4, 
+                       help="Learning rate")
+    parser.add_argument("--epochs", "--num_epochs", type=float, default=1.0, 
+                       help="Number of epochs")
+    
+    # Training parameters
     parser.add_argument("--max_seq_length", type=int, default=2048, help="Maximum sequence length")
-    parser.add_argument("--output_dir", type=str, default="outputs", help="Output directory")
     parser.add_argument("--batch_size", type=int, default=2, help="Batch size per device")
     parser.add_argument("--grad_accum", type=int, default=4, help="Gradient accumulation steps")
-    parser.add_argument("--lr", type=float, default=2e-4, help="Learning rate")
-    parser.add_argument("--epochs", type=float, default=1.0, help="Number of epochs")
+    
+    # LoRA parameters
     parser.add_argument("--lora_r", type=int, default=16, help="LoRA r parameter")
-    parser.add_argument("--max_steps", type=int, default=None, help="Max training steps (overrides epochs)")
+    parser.add_argument("--lora_alpha", type=float, default=16, help="LoRA alpha parameter")
+    parser.add_argument("--lora_dropout", type=float, default=0.0, help="LoRA dropout")
+    
+    # Output and saving
+    parser.add_argument("--output_dir", type=str, default="outputs", help="Output directory")
     parser.add_argument("--save_dir", type=str, default="lora_model", help="Directory to save model")
+    parser.add_argument("--max_steps", type=int, default=None, help="Max training steps (overrides epochs)")
+    
+    # Other parameters
     parser.add_argument("--chat_template", type=str, default="llama-3.1", help="Chat template to use")
-    return parser.parse_args()
+    parser.add_argument("--seed", type=int, default=3407, help="Random seed")
+    
+    args = parser.parse_args()
+    return args
 
 def formatting_prompts_func(examples, tokenizer):
     convos = examples["conversations"]
@@ -40,19 +63,21 @@ def main():
         load_in_4bit=True,
     )
     
-    # Add LoRA adapters
-    model = FastLanguageModel.get_peft_model(
-        model,
+    # Tạo cấu hình LoRA riêng
+    lora_config = LoraConfig(
         r=args.lora_r,
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", 
-                         "gate_proj", "up_proj", "down_proj"],
+                       "gate_proj", "up_proj", "down_proj"],
         lora_alpha=args.lora_r,
         lora_dropout=0,
         bias="none",
-        use_gradient_checkpointing="unsloth",
-        random_state=3407,
-        use_rslora=False,
-        loftq_config=None,
+        task_type="CAUSAL_LM"  # Thêm task type cho language model
+    )
+    
+    # Áp dụng LoRA config
+    model = get_peft_model(
+        model,
+        peft_config=lora_config
     )
     
     # Apply chat template
@@ -95,7 +120,7 @@ def main():
             optim="adamw_8bit",
             weight_decay=0.01,
             lr_scheduler_type="linear",
-            seed=3407,
+            seed=args.seed,
             output_dir=args.output_dir,
             report_to="none",
         ),
